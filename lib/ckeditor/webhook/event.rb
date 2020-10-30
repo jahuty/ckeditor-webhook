@@ -25,6 +25,7 @@ module Ckeditor
         @payload[:environment_id]
       end
 
+      # Returns a virtual event id for idempotency.
       def id
         Digest::SHA2.hexdigest @payload.to_json
       end
