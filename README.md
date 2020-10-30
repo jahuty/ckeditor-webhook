@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/jahuty/ckeditor-webhook.svg?style=svg)](https://circleci.com/gh/jahuty/ckeditor-webhook)
+
 # Ckeditor Webhook
 
 A gem for handling [webhooks](https://ckeditor.com/docs/cs/latest/guides/webhooks/overview.html#webhook-format) from CKEditor Cloud Services.
