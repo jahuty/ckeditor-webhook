@@ -67,6 +67,14 @@ module Ckeditor
         end
       end
 
+      describe "#id" do
+        let(:event) { Event.new(payload) }
+
+        it "returns sha-256" do
+          expect(event.id).to eq(Digest::SHA2.hexdigest payload.to_json)
+        end
+      end
+
       describe "#payload" do
         let(:event) { Event.new(payload) }
 

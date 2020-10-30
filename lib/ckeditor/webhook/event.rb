@@ -1,4 +1,6 @@
 require "time"
+require "digest"
+require "json"
 
 # A generic webhook notification from Ckeditor Cloud Services.
 #
@@ -21,6 +23,11 @@ module Ckeditor
 
       def environment_id
         @payload[:environment_id]
+      end
+
+      # Returns a virtual event id for idempotency.
+      def id
+        Digest::SHA2.hexdigest @payload.to_json
       end
 
       def payload
