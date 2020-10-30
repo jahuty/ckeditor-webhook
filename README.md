@@ -1,8 +1,6 @@
-# Ckeditor::Webhook
+# Ckeditor Webhook
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ckeditor/webhook`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+A gem for handling [webhooks](https://ckeditor.com/docs/cs/latest/guides/webhooks/overview.html#webhook-format) from CKEditor Cloud Services.
 
 ## Installation
 
@@ -14,15 +12,62 @@ gem 'ckeditor-webhook'
 
 And then execute:
 
-    $ bundle install
+```
+$ bundle install
+```
 
 Or install it yourself as:
 
-    $ gem install ckeditor-webhook
+```
+$ gem install ckeditor-webhook
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+Call `Ckeditor::Webhook::construct_event` with the following keyword arguments to create a verified webhook event (if the webhook is invalid, a `Ckedior::Webhook::SignatureVerificationError` will be raised):
+
+- `secret` (`String`), the CKEditor Cloud Services [API secret](https://ckeditor.com/docs/cs/latest/guides/security/api-secret.html).
+- `payload` (`Hash`), the webhook's payload
+- `signature` (`String`), the request's `X-CS-Signature` header
+- `timestamp` (`Integer`), the request's `X-CS-Timestamp` header
+- `url` (`String`), the request's url
+- `method` (`String`), the request's case-insensitive method (defaults to `"POST"`)
+
+For example:
+
+```ruby
+# Store your CKEditor Cloud Services API key safely.
+secret = "SECRET"
+
+payload = JSON.parse(request.body.read, symbolize_names: true)
+# => { event: "foo", environment_id: "bar", payload: { baz: "qux" }, sent_at: Time.now.utc }
+
+url = request.original_url
+# => "http://demo.example.com/webhook?a=1"
+
+signature = request.env['X-CS-Signature']
+# => "880558bfda70c698099ca1184a0c5c5114e5d91cc254d2532470eecf44819b94"
+
+timestamp = request.env['X-CS-Timestamp']
+# => 1563276169752
+
+begin
+  event = CKEditor::Webhook.construct_event(
+    secret:    secret,
+    payload:   payload,
+    url:       url,
+    signature: signature,
+    timestamp: timestamp
+  )
+
+  event.type            # => "foo"
+  event.environment_id  # => "bar"
+  event.payload         # => { baz: "qux" }
+  event.sent_at         # => Time
+rescue Ckeditor::Webhook::SignatureVerificationError => e
+  # Reject the webhook! The signature did not match.
+end
+```
 
 ## Development
 
@@ -33,7 +78,6 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/ckeditor-webhook. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/ckeditor-webhook/blob/master/CODE_OF_CONDUCT.md).
-
 
 ## License
 
