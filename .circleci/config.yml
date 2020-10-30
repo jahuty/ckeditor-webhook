@@ -1,0 +1,40 @@
+version: 2.1
+orbs:
+  ruby: circleci/ruby@0.1.2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/ruby:2.7.2
+    executor: ruby/default
+    steps:
+      - checkout
+      - run:
+          name: Update bundler
+          command: gem install bundler
+      - run:
+          name: Which bundler?
+          command: bundle -v
+      # Restore bundle cache
+      # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+      - restore_cache:
+          key: vendor-bundle-{{ checksum "Gemfile.lock" }}
+      # Install Ruby dependencies.
+      - run:
+          name: Bundle install
+          command: bundle check --path=vendor/bundle || bundle install --path=vendor/bundle
+      # Store bundle cache for Ruby dependencies.
+      - save_cache:
+          key: vendor-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - vendor/bundle
+      - run:
+          name: Run rspec in parallel
+          command: |
+            bundle exec rspec --profile 10 \
+              --format RspecJunitFormatter \
+              --out test_results/rspec.xml \
+              --format progress \
+              $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+      - store_test_results:
+          path: test_results
