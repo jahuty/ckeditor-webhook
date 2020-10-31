@@ -40,7 +40,7 @@ module Ckeditor
       # @see  https://ckeditor.com/docs/cs/latest/examples/security/request-signature-nodejs.html
       def message(method:, url:, timestamp:, payload:)
         uri    = URI.parse(url)
-        path   = "#{uri.path}?#{uri.query}"
+        path   = uri.path + (uri.query.nil? ? "" : "?#{uri.query}" )
         method = method.upcase
         body   = payload.to_json
 
