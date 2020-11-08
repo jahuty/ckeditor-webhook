@@ -29,7 +29,7 @@ $ gem install ckeditor-webhook
 Call `Ckeditor::Webhook::construct_event` with the following keyword arguments to create a verified webhook event (if the webhook is invalid, a `Ckedior::Webhook::SignatureVerificationError` will be raised):
 
 - `secret` (`String`), the CKEditor Cloud Services [API secret](https://ckeditor.com/docs/cs/latest/guides/security/api-secret.html).
-- `payload` (`Hash`), the webhook's payload
+- `payload` (`String`), the webhook's payload
 - `signature` (`String`), the request's `X-CS-Signature` header
 - `timestamp` (`Integer`), the request's `X-CS-Timestamp` header
 - `url` (`String`), the request's url
@@ -41,8 +41,8 @@ For example:
 # Store your CKEditor Cloud Services API key safely.
 secret = "SECRET"
 
-payload = JSON.parse(request.body.read, symbolize_names: true)
-# => { event: "foo", environment_id: "bar", payload: { baz: "qux" }, sent_at: Time.now.utc }
+payload = request.body.read
+# => '{ "event": "foo", "environment_id": "bar", "payload": { baz: "qux" }, "sent_at": Time.now.utc }
 
 url = request.original_url
 # => "http://demo.example.com/webhook?a=1"

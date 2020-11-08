@@ -12,7 +12,7 @@ RSpec.describe Ckeditor::Webhook do
     let(:method)    { "POST" }
     let(:url)       { "http://demo.example.com/webhook?a=1" }
     let(:timestamp) { 1563276169752 }
-    let(:payload)   { { a: 1 } }
+    let(:payload)   { '{ "a": 1 }' }
 
     context "when signatures do not match" do
       let(:signature) { "WRONG" }
@@ -36,7 +36,9 @@ RSpec.describe Ckeditor::Webhook do
 
       it "returns event" do
         # Actually calling Event.new with payload will raise PayloadInvalid exception.
-        expect(Ckeditor::Webhook::Event).to receive(:new).with(payload)
+        expect(Ckeditor::Webhook::Event).to receive(:new).with(
+          JSON.parse(payload, symbolize_names: true)
+        )
 
         Ckeditor::Webhook.construct_event(
           url:       url,
